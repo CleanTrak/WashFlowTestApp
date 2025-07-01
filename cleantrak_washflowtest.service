@@ -1,0 +1,10 @@
+[Unit]
+Description=WashFlowTestApp
+After=network.target
+[Service]
+User=moxa
+WorkingDirectory=/home/moxa/WashFlowTestApp
+ExecStart=/usr/local/bin/serve -s /home/moxa/WashFlowTestApp/dist -l 3004
+Restart=always
+[Install]
+WantedBy=multi-user.target
