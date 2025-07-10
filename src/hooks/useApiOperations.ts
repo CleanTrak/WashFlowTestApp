@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { formatISO, startOfDay, endOfDay } from "date-fns";
+import { startOfDay, endOfDay } from "date-fns";
 import {
   washQueueAPI,
   getAvgWashTime,
@@ -59,8 +59,13 @@ export const useApiOperations = (
   } = useApi(() => {
     const now = new Date();
     return washQueueAPI.getTransactionReport({
-      start_datetime: formatISO(startOfDay(now)),
-      end_datetime: formatISO(endOfDay(now)),
+      page: 1,
+      pageSize: 10,
+      period: "hourly",
+      start_datetime: startOfDay(now).toISOString(),
+      end_datetime: endOfDay(now).toISOString(),
+      timefilter_start: "0000",
+      timefilter_end: "2359",
     });
   });
 

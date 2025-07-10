@@ -78,6 +78,8 @@ export interface TransactionReport {
 export interface TransactionReportParams {
   start_datetime: string;
   end_datetime: string;
+  timefilter_start: string;
+  timefilter_end: string;
   licence_plate?: string;
   page?: number;
   pageSize?: number;

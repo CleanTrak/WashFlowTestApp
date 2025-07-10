@@ -27,23 +27,57 @@ const CLOUD: AxiosInstance = axios.create({
 });
 
 const cloudCustomHeaders: Record<string, string> = {};
+let moxaCoreToken: string = "";
+
 export const setCloudHeaders = (
   companyId: string,
   tunnelId: string,
-  accessToken?: string
+  cloudAccessToken?: string,
+  moxaCoreTokenValue?: string
 ) => {
   cloudCustomHeaders["X-Company-UUID"] = companyId;
   cloudCustomHeaders["X-Tunnel-UUID"] = tunnelId;
-  if (accessToken) {
-    cloudCustomHeaders["Authorization"] = `Bearer ${accessToken}`;
+  if (cloudAccessToken) {
+    cloudCustomHeaders["Authorization"] = `Bearer ${cloudAccessToken}`;
   } else {
     delete cloudCustomHeaders["Authorization"];
+  }
+
+  // Store MoxaCore token for MOXA requests
+  if (moxaCoreTokenValue) {
+    moxaCoreToken = moxaCoreTokenValue;
+  }
+};
+
+// Validate MoxaCore API Token
+export const validateMoxaCoreToken = async (
+  token: string
+): Promise<boolean> => {
+  try {
+    const response = await MOXA.get("/system/token/validate", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data?.valid === true;
+  } catch (error) {
+    console.error("MoxaCore token validation failed:", error);
+    return false;
   }
 };
 
 CLOUD.interceptors.request.use((config) => {
   config.headers = config.headers || {};
   Object.assign(config.headers, cloudCustomHeaders);
+  return config;
+});
+
+// Add interceptor for MOXA requests to include MoxaCore token
+MOXA.interceptors.request.use((config) => {
+  config.headers = config.headers || {};
+  if (moxaCoreToken) {
+    config.headers["Authorization"] = `Bearer ${moxaCoreToken}`;
+  }
   return config;
 });
 

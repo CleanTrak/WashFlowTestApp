@@ -31,8 +31,11 @@ function App() {
     credentials,
     updateCredential,
     applyCredentials,
+    clearCredentials,
     isConfigured,
     isValid: credentialsValid,
+    isValidating,
+    validationError,
   } = useCredentials();
 
   const apiOperations = useApiOperations(
@@ -45,63 +48,74 @@ function App() {
     setCarData((prev) => ({ ...prev, ...updates }));
   };
 
-  if (!isConfigured) {
-    return (
-      <CredentialsForm
-        credentials={credentials}
-        onUpdateCredential={updateCredential}
-        onSubmit={applyCredentials}
-        isValid={credentialsValid}
-      />
-    );
-  }
+  const handleCredentialsSubmit = async () => {
+    await applyCredentials();
+  };
 
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-100 p-8">
         <div className="max-w-4xl mx-auto space-y-6">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-blue-600 mb-2">
-              WashFlow Test App
-            </h1>
-            <p className="text-gray-600">Car wash controller testing</p>
+          {/* Credentials Form - always visible at the top */}
+          <CredentialsForm
+            credentials={credentials}
+            onUpdateCredential={updateCredential}
+            onSubmit={handleCredentialsSubmit}
+            onClear={clearCredentials}
+            isValid={credentialsValid}
+            isValidating={isValidating}
+            validationError={validationError}
+          />
+
+          {/* Main content - disabled when credentials not configured */}
+          <div
+            className={`space-y-6 transition-opacity duration-300 ${
+              isConfigured ? "opacity-100" : "opacity-30 pointer-events-none"
+            }`}
+          >
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-blue-600 mb-2">
+                WashFlow Test App
+              </h1>
+              <p className="text-gray-600">Car wash controller testing</p>
+            </div>
+
+            <ErrorDisplay
+              error={apiOperations.error}
+              onClose={() => apiOperations.setError("")}
+            />
+
+            <CarForm
+              carData={carData}
+              onUpdateCarData={updateCarData}
+              onAddCar={apiOperations.handleAddCar}
+              isAddingCar={apiOperations.isAddingCar}
+              addCarResponse={apiOperations.response.addCar ?? null}
+              addCarError={apiOperations.addCarError}
+            />
+
+            <StatisticsSection
+              onGetStatistics={apiOperations.handleGetStatistics}
+              isLoading={apiOperations.isLoadingStats}
+              response={apiOperations.response.statistics}
+              error={apiOperations.statsError}
+            />
+
+            <HeartbeatSection
+              onGetHeartbeat={apiOperations.handleGetHeartBeat}
+              isLoading={apiOperations.isLoadingHeartbeat}
+              response={apiOperations.response.heartBeat}
+              error={apiOperations.heartbeatError}
+              deviceId={credentials.deviceId}
+            />
+
+            <ReportsSection
+              onGetReports={apiOperations.handleGetReports}
+              isLoading={apiOperations.isLoadingReports}
+              response={apiOperations.response.reports}
+              error={apiOperations.reportsError}
+            />
           </div>
-
-          <ErrorDisplay
-            error={apiOperations.error}
-            onClose={() => apiOperations.setError("")}
-          />
-
-          <CarForm
-            carData={carData}
-            onUpdateCarData={updateCarData}
-            onAddCar={apiOperations.handleAddCar}
-            isAddingCar={apiOperations.isAddingCar}
-            addCarResponse={apiOperations.response.addCar ?? null}
-            addCarError={apiOperations.addCarError}
-          />
-
-          <StatisticsSection
-            onGetStatistics={apiOperations.handleGetStatistics}
-            isLoading={apiOperations.isLoadingStats}
-            response={apiOperations.response.statistics}
-            error={apiOperations.statsError}
-          />
-
-          <HeartbeatSection
-            onGetHeartbeat={apiOperations.handleGetHeartBeat}
-            isLoading={apiOperations.isLoadingHeartbeat}
-            response={apiOperations.response.heartBeat}
-            error={apiOperations.heartbeatError}
-            deviceId={credentials.deviceId}
-          />
-
-          <ReportsSection
-            onGetReports={apiOperations.handleGetReports}
-            isLoading={apiOperations.isLoadingReports}
-            response={apiOperations.response.reports}
-            error={apiOperations.reportsError}
-          />
         </div>
       </div>
     </ErrorBoundary>
