@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { setCloudHeaders, validateMoxaCoreToken } from "../api/client";
 
 export interface Credentials {
-  cloudAccessToken: string; // renamed from accessToken
-  moxaCoreToken: string; // new field
+  cloudAccessToken: string;
+  moxaCoreToken: string;
   tunnelId: string;
   companyId: string;
   deviceId: string;

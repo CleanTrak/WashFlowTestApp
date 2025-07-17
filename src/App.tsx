@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ErrorDisplay } from "./components/ErrorDisplay/ErrorDisplay";
-import { CarForm } from "./components/CarForm/CarForm";
+import { WashQueue } from "./components/WashQueue";
+import { Momentary } from "./components/Momentary";
 import { CredentialsForm } from "./components/CredentialsForm/CredentialsForm";
 import {
   StatisticsSection,
@@ -16,13 +17,13 @@ function App() {
   const [carData, setCarData] = useState<WashQueueCarRequest>({
     invoice_id: "",
     wash_pkg_num: 1,
-    position_in_queue: 0,
+    position_in_queue: 1,
     wash_opt_numbers: [],
     license_plate: "",
     make: "",
     model: "",
     color: "",
-    vehicle_type: "",
+    car_type: "",
     region: "",
     image_urls: [],
   });
@@ -56,7 +57,6 @@ function App() {
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-100 p-8">
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* Credentials Form - always visible at the top */}
           <CredentialsForm
             credentials={credentials}
             onUpdateCredential={updateCredential}
@@ -67,7 +67,6 @@ function App() {
             validationError={validationError}
           />
 
-          {/* Main content - disabled when credentials not configured */}
           <div
             className={`space-y-6 transition-opacity duration-300 ${
               isConfigured ? "opacity-100" : "opacity-30 pointer-events-none"
@@ -85,13 +84,28 @@ function App() {
               onClose={() => apiOperations.setError("")}
             />
 
-            <CarForm
+            <WashQueue
               carData={carData}
               onUpdateCarData={updateCarData}
               onAddCar={apiOperations.handleAddCar}
               isAddingCar={apiOperations.isAddingCar}
               addCarResponse={apiOperations.response.addCar ?? null}
               addCarError={apiOperations.addCarError}
+              queueCars={apiOperations.response.queueCars}
+              onGetQueueCars={apiOperations.handleGetQueueCars}
+              isLoadingQueueCars={apiOperations.isLoadingQueueCars}
+              queueCarsError={apiOperations.queueCarsError}
+              onUpdateCar={apiOperations.handleUpdateCar}
+              isUpdatingCar={apiOperations.isUpdatingCar}
+              onDeleteCar={apiOperations.handleDeleteCar}
+              isDeletingCar={apiOperations.isDeletingCar}
+            />
+
+            <Momentary
+              onSendMomentary={apiOperations.handleSendMomentary}
+              isSending={apiOperations.isSendingMomentary}
+              response={apiOperations.response.momentary ?? null}
+              error={apiOperations.momentaryError}
             />
 
             <StatisticsSection
@@ -106,6 +120,10 @@ function App() {
               isLoading={apiOperations.isLoadingHeartbeat}
               response={apiOperations.response.heartBeat}
               error={apiOperations.heartbeatError}
+              onGetLocalHeartbeat={apiOperations.handleGetLocalHeartBeat}
+              isLoadingLocal={apiOperations.isLoadingLocalHeartbeat}
+              localResponse={apiOperations.response.localHeartBeat}
+              localError={apiOperations.localHeartbeatError}
               deviceId={credentials.deviceId}
             />
 

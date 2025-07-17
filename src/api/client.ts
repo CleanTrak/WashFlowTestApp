@@ -1,6 +1,11 @@
 import axios from "axios";
 import type { AxiosInstance } from "axios";
-import type { WashQueueCarRequest, TransactionReportParams } from "../types";
+import type {
+  WashQueueCarRequest,
+  TransactionReportParams,
+  QueueCarsResponse,
+  MomentaryRequest,
+} from "../types";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
@@ -81,12 +86,38 @@ MOXA.interceptors.request.use((config) => {
   return config;
 });
 
+export const momentaryAPI = {
+  sendMomentary: (data: MomentaryRequest) => {
+    return MOXA.post("/momentary", data);
+  },
+};
+
 export const washQueueAPI = {
   addCar: (carData: WashQueueCarRequest) => {
     return MOXA.post("/washQueue/car", carData);
   },
-  getTransactionReport: (params: TransactionReportParams) => {
-    return MOXA.get("/reports/transaction", { params });
+  getCars: (state?: string): Promise<QueueCarsResponse> => {
+    const params = state ? { state } : {};
+    return MOXA.get("/washQueue/cars", { params }).then((res) => res.data);
+  },
+  updateCar: (invoiceId: string, carData: Partial<WashQueueCarRequest>) => {
+    return MOXA.put(`/washQueue/car/${invoiceId}`, carData);
+  },
+  deleteCar: (invoiceId: string) => {
+    return MOXA.delete(`/washQueue/car/${invoiceId}`);
+  },
+  getTransactionReport: (
+    params: TransactionReportParams,
+    companyID: string,
+    tunnelID: string
+  ) => {
+    return CLOUD.get("/reports/transaction", {
+      params,
+      headers: {
+        "X-Company-UUID": companyID,
+        "X-Tunnel-UUID": tunnelID,
+      },
+    });
   },
 };
 
@@ -136,6 +167,11 @@ export const getHeartBeat = async (deviceId: string): Promise<unknown> => {
       "X-Device-UUID": deviceId,
     },
   });
+  return response.data;
+};
+
+export const getLocalHeartBeat = async (): Promise<unknown> => {
+  const response = await MOXA.get("/system/device/heartbeat");
   return response.data;
 };
 

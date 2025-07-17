@@ -126,8 +126,8 @@ export const CarForm: React.FC<CarFormProps> = ({
             </label>
             <input
               type="text"
-              value={carData.vehicle_type}
-              onChange={handleInputChange("vehicle_type")}
+              value={carData.car_type}
+              onChange={handleInputChange("car_type")}
               placeholder="Sedan"
               className={inputClass}
             />
