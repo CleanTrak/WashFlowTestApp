@@ -1,6 +1,5 @@
 // Main components
 export * from "./ErrorDisplay";
-export * from "./CarForm";
 export * from "./WashQueue";
 export * from "./Momentary";
 export * from "./CredentialsForm";

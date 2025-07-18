@@ -125,3 +125,21 @@ export interface TransactionReportParams {
   pageSize?: number;
   period?: string;
 }
+
+// Authentication and Company types
+export interface AuthenticatedUserResponse {
+  company: string[];
+  [key: string]: unknown;
+}
+
+export interface CompanyResponse {
+  tunnels: string[];
+  [key: string]: unknown;
+}
+
+export interface DeviceResponse {
+  id: string;
+  [key: string]: unknown;
+}
+
+export type DeviceArrayResponse = DeviceResponse[];

@@ -9,8 +9,6 @@ import type {
 } from "../../types";
 
 interface WashQueueProps {
-  carData: WashQueueCarRequest;
-  onUpdateCarData: (updates: Partial<WashQueueCarRequest>) => void;
   onAddCar: (carData: WashQueueCarRequest) => void;
   isAddingCar: boolean;
   addCarResponse: string | object | null;
@@ -29,8 +27,6 @@ interface WashQueueProps {
 }
 
 export const WashQueue: React.FC<WashQueueProps> = ({
-  carData,
-  onUpdateCarData,
   onAddCar,
   isAddingCar,
   addCarResponse,
@@ -44,6 +40,19 @@ export const WashQueue: React.FC<WashQueueProps> = ({
   onDeleteCar,
   isDeletingCar,
 }) => {
+  const [carData, setCarData] = useState<WashQueueCarRequest>({
+    invoice_id: "",
+    wash_pkg_num: 1,
+    position_in_queue: 0,
+    wash_opt_numbers: [],
+    license_plate: "",
+    make: "",
+    model: "",
+    color: "",
+    car_type: "",
+    region: "",
+    image_urls: [],
+  });
   const [activeTab, setActiveTab] = useState<"add" | "queue">("add");
   const [editingCar, setEditingCar] = useState<WashQueueCar | null>(null);
   const [editFormData, setEditFormData] = useState<
@@ -75,6 +84,10 @@ export const WashQueue: React.FC<WashQueueProps> = ({
     }
   }, [activeTab, hasLoadedQueue, queueCars, onGetQueueCars]);
 
+  const updateCarData = (updates: Partial<WashQueueCarRequest>) => {
+    setCarData((prev) => ({ ...prev, ...updates }));
+  };
+
   const handleInputChange =
     (field: keyof WashQueueCarRequest, isEdit = false) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -86,7 +99,7 @@ export const WashQueue: React.FC<WashQueueProps> = ({
       if (isEdit) {
         setEditFormData((prev) => ({ ...prev, [field]: value }));
       } else {
-        onUpdateCarData({ [field]: value });
+        updateCarData({ [field]: value });
       }
     };
 
@@ -104,7 +117,7 @@ export const WashQueue: React.FC<WashQueueProps> = ({
       if (isEdit) {
         setEditFormData((prev) => ({ ...prev, wash_opt_numbers: numbers }));
       } else {
-        onUpdateCarData({ wash_opt_numbers: numbers });
+        updateCarData({ wash_opt_numbers: numbers });
       }
     };
 
@@ -122,7 +135,7 @@ export const WashQueue: React.FC<WashQueueProps> = ({
       if (isEdit) {
         setEditFormData((prev) => ({ ...prev, image_urls: urls }));
       } else {
-        onUpdateCarData({ image_urls: urls });
+        updateCarData({ image_urls: urls });
       }
     };
 
@@ -227,13 +240,14 @@ export const WashQueue: React.FC<WashQueueProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Position in Queue
+            Position in Queue{" "}
+            <span className="text-gray-400 text-xs">(optional)</span>
           </label>
           <input
             type="number"
             value={data.position_in_queue || ""}
             onChange={handleInputChange("position_in_queue", isEdit)}
-            placeholder="1"
+            placeholder="Leave empty for auto-assign"
             min="1"
             className={inputClass}
           />
@@ -241,7 +255,10 @@ export const WashQueue: React.FC<WashQueueProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Wash Options (comma-separated)
+            Wash Options{" "}
+            <span className="text-gray-400 text-xs">
+              (optional, comma-separated)
+            </span>
           </label>
           <input
             type="text"
@@ -254,7 +271,8 @@ export const WashQueue: React.FC<WashQueueProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            License Plate
+            License Plate{" "}
+            <span className="text-gray-400 text-xs">(optional)</span>
           </label>
           <input
             type="text"
@@ -267,7 +285,7 @@ export const WashQueue: React.FC<WashQueueProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Make
+            Make <span className="text-gray-400 text-xs">(optional)</span>
           </label>
           <input
             type="text"
@@ -280,7 +298,7 @@ export const WashQueue: React.FC<WashQueueProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Model
+            Model <span className="text-gray-400 text-xs">(optional)</span>
           </label>
           <input
             type="text"
@@ -293,7 +311,7 @@ export const WashQueue: React.FC<WashQueueProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Color
+            Color <span className="text-gray-400 text-xs">(optional)</span>
           </label>
           <input
             type="text"
@@ -306,7 +324,7 @@ export const WashQueue: React.FC<WashQueueProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Car Type
+            Car Type <span className="text-gray-400 text-xs">(optional)</span>
           </label>
           <select
             value={data.car_type}
@@ -325,7 +343,7 @@ export const WashQueue: React.FC<WashQueueProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Region
+            Region <span className="text-gray-400 text-xs">(optional)</span>
           </label>
           <input
             type="text"
@@ -339,7 +357,10 @@ export const WashQueue: React.FC<WashQueueProps> = ({
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Image URLs (comma-separated)
+          Image URLs{" "}
+          <span className="text-gray-400 text-xs">
+            (optional, comma-separated)
+          </span>
         </label>
         <input
           type="text"

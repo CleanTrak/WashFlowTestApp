@@ -7,9 +7,9 @@ import {
   getCarsPerHour,
   getTotalWashedCarsToday,
   getHeartBeat,
-  getLocalHeartBeat,
 } from "../api/client";
 import { useApi } from "./useApi";
+import { cleanCarData, cleanPartialCarData } from "../utils/validation";
 import type {
   WashQueueCarRequest,
   QueueCarsResponse,
@@ -21,7 +21,6 @@ interface ApiResponse {
   addCar?: string | object;
   statistics?: string | object;
   heartBeat?: string | object;
-  localHeartBeat?: string | object;
   reports?: string | object;
   queueCars?: QueueCarsResponse;
   momentary?: string | object;
@@ -97,12 +96,6 @@ export const useApiOperations = (
   } = useApi(() => getHeartBeat(deviceId));
 
   const {
-    execute: executeGetLocalHeartbeat,
-    isLoading: isLoadingLocalHeartbeat,
-    error: localHeartbeatError,
-  } = useApi(() => getLocalHeartBeat());
-
-  const {
     execute: executeGetReports,
     isLoading: isLoadingReports,
     error: reportsError,
@@ -113,7 +106,9 @@ export const useApiOperations = (
 
   const handleAddCar = async (carData: WashQueueCarRequest) => {
     try {
-      const result = await executeAddCar(carData);
+      const cleanedData = cleanCarData(carData);
+      console.log("Sending car data:", cleanedData);
+      const result = await executeAddCar(cleanedData);
       setResponse((prev) => ({ ...prev, addCar: result as string | object }));
       // Removed automatic queue refresh - user can manually refresh if needed
     } catch (err) {
@@ -138,7 +133,9 @@ export const useApiOperations = (
     carData: Partial<WashQueueCarRequest>
   ) => {
     try {
-      await executeUpdateCar({ invoiceId, carData });
+      const cleanedData = cleanPartialCarData(carData);
+      console.log("Updating car data:", cleanedData);
+      await executeUpdateCar({ invoiceId, carData: cleanedData });
       // Removed automatic queue refresh - user can manually refresh if needed
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -172,18 +169,6 @@ export const useApiOperations = (
       setResponse((prev) => ({
         ...prev,
         heartBeat: result as string | object,
-      }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    }
-  };
-
-  const handleGetLocalHeartBeat = async () => {
-    try {
-      const result = await executeGetLocalHeartbeat();
-      setResponse((prev) => ({
-        ...prev,
-        localHeartBeat: result as string | object,
       }));
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -259,10 +244,6 @@ export const useApiOperations = (
     handleGetHeartBeat,
     isLoadingHeartbeat,
     heartbeatError,
-    // Local Heartbeat
-    handleGetLocalHeartBeat,
-    isLoadingLocalHeartbeat,
-    localHeartbeatError,
     // Reports
     handleGetReports,
     isLoadingReports,

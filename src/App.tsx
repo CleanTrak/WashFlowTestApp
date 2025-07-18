@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { ErrorDisplay } from "./components/ErrorDisplay/ErrorDisplay";
 import { WashQueue } from "./components/WashQueue";
 import { Momentary } from "./components/Momentary";
@@ -11,25 +10,11 @@ import {
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useCredentials } from "./hooks/useCredentials";
 import { useApiOperations } from "./hooks/useApiOperations";
-import type { WashQueueCarRequest } from "./types";
 
 function App() {
-  const [carData, setCarData] = useState<WashQueueCarRequest>({
-    invoice_id: "",
-    wash_pkg_num: 1,
-    position_in_queue: 1,
-    wash_opt_numbers: [],
-    license_plate: "",
-    make: "",
-    model: "",
-    color: "",
-    car_type: "",
-    region: "",
-    image_urls: [],
-  });
-
   const {
     credentials,
+    authData,
     updateCredential,
     applyCredentials,
     clearCredentials,
@@ -40,14 +25,10 @@ function App() {
   } = useCredentials();
 
   const apiOperations = useApiOperations(
-    credentials.companyId,
-    credentials.tunnelId,
-    credentials.deviceId
+    authData.companyId,
+    authData.tunnelId,
+    authData.deviceId
   );
-
-  const updateCarData = (updates: Partial<WashQueueCarRequest>) => {
-    setCarData((prev) => ({ ...prev, ...updates }));
-  };
 
   const handleCredentialsSubmit = async () => {
     await applyCredentials();
@@ -85,8 +66,6 @@ function App() {
             />
 
             <WashQueue
-              carData={carData}
-              onUpdateCarData={updateCarData}
               onAddCar={apiOperations.handleAddCar}
               isAddingCar={apiOperations.isAddingCar}
               addCarResponse={apiOperations.response.addCar ?? null}
@@ -120,11 +99,7 @@ function App() {
               isLoading={apiOperations.isLoadingHeartbeat}
               response={apiOperations.response.heartBeat}
               error={apiOperations.heartbeatError}
-              onGetLocalHeartbeat={apiOperations.handleGetLocalHeartBeat}
-              isLoadingLocal={apiOperations.isLoadingLocalHeartbeat}
-              localResponse={apiOperations.response.localHeartBeat}
-              localError={apiOperations.localHeartbeatError}
-              deviceId={credentials.deviceId}
+              deviceId={authData.deviceId}
             />
 
             <ReportsSection

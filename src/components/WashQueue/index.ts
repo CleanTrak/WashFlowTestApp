@@ -1,1 +1,1 @@
-export { WashQueue } from "./WashQueue";
+export { WashQueueContainer as WashQueue } from "./components/WashQueueContainer";

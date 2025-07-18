@@ -6,7 +6,6 @@ export {
   getCarsPerHour,
   getTotalWashedCarsToday,
   getHeartBeat,
-  getLocalHeartBeat,
   setCloudHeaders,
   validateMoxaCoreToken,
   MOXA,

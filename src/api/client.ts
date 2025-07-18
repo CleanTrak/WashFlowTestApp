@@ -32,26 +32,26 @@ const CLOUD: AxiosInstance = axios.create({
 });
 
 const cloudCustomHeaders: Record<string, string> = {};
-let moxaCoreToken: string = "";
+let apiToken: string = "";
 
 export const setCloudHeaders = (
   companyId: string,
   tunnelId: string,
-  cloudAccessToken?: string,
-  moxaCoreTokenValue?: string
+  apiTokenValue: string
 ) => {
   cloudCustomHeaders["X-Company-UUID"] = companyId;
   cloudCustomHeaders["X-Tunnel-UUID"] = tunnelId;
-  if (cloudAccessToken) {
-    cloudCustomHeaders["Authorization"] = `Bearer ${cloudAccessToken}`;
-  } else {
-    delete cloudCustomHeaders["Authorization"];
-  }
+  cloudCustomHeaders["Authorization"] = `Bearer ${apiTokenValue}`;
 
-  // Store MoxaCore token for MOXA requests
-  if (moxaCoreTokenValue) {
-    moxaCoreToken = moxaCoreTokenValue;
-  }
+  // Store API token for both MOXA and CLOUD requests
+  apiToken = apiTokenValue;
+};
+
+export const clearApiToken = () => {
+  apiToken = "";
+  delete cloudCustomHeaders["Authorization"];
+  delete cloudCustomHeaders["X-Company-UUID"];
+  delete cloudCustomHeaders["X-Tunnel-UUID"];
 };
 
 // Validate MoxaCore API Token
@@ -80,8 +80,8 @@ CLOUD.interceptors.request.use((config) => {
 // Add interceptor for MOXA requests to include MoxaCore token
 MOXA.interceptors.request.use((config) => {
   config.headers = config.headers || {};
-  if (moxaCoreToken) {
-    config.headers["Authorization"] = `Bearer ${moxaCoreToken}`;
+  if (apiToken) {
+    config.headers["Authorization"] = `Bearer ${apiToken}`;
   }
   return config;
 });
@@ -170,9 +170,6 @@ export const getHeartBeat = async (deviceId: string): Promise<unknown> => {
   return response.data;
 };
 
-export const getLocalHeartBeat = async (): Promise<unknown> => {
-  const response = await MOXA.get("/system/device/heartbeat");
-  return response.data;
-};
+
 
 export { MOXA, CLOUD };
