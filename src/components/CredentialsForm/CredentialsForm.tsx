@@ -40,9 +40,7 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
     <Card className="w-full">
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold text-blue-600">
-            Enter Credentials
-          </h2>
+          <h2 className="text-2xl font-bold text-blue-600">Enter API Token</h2>
           {onClear && (
             <button
               type="button"
@@ -75,93 +73,26 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
           </div>
         )}
 
-        {/* Token Fields Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              Cloud Access Token
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-              placeholder="Enter your cloud access token"
-              value={credentials.cloudAccessToken}
-              onChange={(e) =>
-                onUpdateCredential("cloudAccessToken", e.target.value)
-              }
-              disabled={isValidating}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              MoxaCore API Token
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-              placeholder="Enter your MoxaCore API token"
-              value={credentials.moxaCoreToken}
-              onChange={(e) =>
-                onUpdateCredential("moxaCoreToken", e.target.value)
-              }
-              disabled={isValidating}
-              required
-            />
-          </div>
-        </div>
-
-        {/* ID Fields Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              Company ID
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-              placeholder="Enter company ID"
-              value={credentials.companyId}
-              onChange={(e) => onUpdateCredential("companyId", e.target.value)}
-              disabled={isValidating}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              Tunnel ID
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-              placeholder="Enter tunnel ID"
-              value={credentials.tunnelId}
-              onChange={(e) => onUpdateCredential("tunnelId", e.target.value)}
-              disabled={isValidating}
-              required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-gray-700">
-              Device ID
-              <span className="text-gray-400 text-xs">(for Heartbeat)</span>
-            </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
-              placeholder="Enter device ID"
-              value={credentials.deviceId}
-              onChange={(e) => onUpdateCredential("deviceId", e.target.value)}
-              disabled={isValidating}
-            />
-          </div>
+        {/* API Token Field */}
+        <div className="space-y-2">
+          <label className="block text-sm font-semibold text-gray-700">
+            API Token
+            <span className="text-red-500 ml-1">*</span>
+          </label>
+          <input
+            type="text"
+            className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors"
+            placeholder="Enter your API token"
+            value={credentials.apiToken}
+            onChange={(e) => onUpdateCredential("apiToken", e.target.value)}
+            disabled={isValidating}
+            required
+          />
+          <p className="text-sm text-gray-500">
+            This token will be used to authenticate with both MoxaCore and Cloud
+            APIs. Company, tunnel, and device information will be automatically
+            retrieved.
+          </p>
         </div>
 
         {/* Submit Button */}
@@ -193,10 +124,10 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                Validating...
+                Validating and configuring...
               </div>
             ) : (
-              "Submit"
+              "Configure"
             )}
           </Button>
         </div>

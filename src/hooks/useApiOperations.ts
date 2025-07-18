@@ -2,19 +2,28 @@ import { useState } from "react";
 import { startOfDay, endOfDay } from "date-fns";
 import {
   washQueueAPI,
+  momentaryAPI,
   getAvgWashTime,
   getCarsPerHour,
   getTotalWashedCarsToday,
   getHeartBeat,
 } from "../api/client";
 import { useApi } from "./useApi";
-import type { WashQueueCarRequest } from "../types";
+import { cleanCarData, cleanPartialCarData } from "../utils/validation";
+import type {
+  WashQueueCarRequest,
+  QueueCarsResponse,
+  MomentaryRequest,
+  TransactionReportParams,
+} from "../types";
 
 interface ApiResponse {
   addCar?: string | object;
   statistics?: string | object;
   heartBeat?: string | object;
   reports?: string | object;
+  queueCars?: QueueCarsResponse;
+  momentary?: string | object;
 }
 
 export const useApiOperations = (
@@ -31,6 +40,40 @@ export const useApiOperations = (
     error: addCarError,
   } = useApi((carData: unknown) =>
     washQueueAPI.addCar(carData as WashQueueCarRequest)
+  );
+
+  const {
+    execute: executeGetQueueCars,
+    isLoading: isLoadingQueueCars,
+    error: queueCarsError,
+  } = useApi(() => washQueueAPI.getCars("IN_QUEUE"));
+
+  const {
+    execute: executeUpdateCar,
+    isLoading: isUpdatingCar,
+    error: updateCarError,
+  } = useApi((params: unknown) => {
+    const { invoiceId, carData } = params as {
+      invoiceId: string;
+      carData: Partial<WashQueueCarRequest>;
+    };
+    return washQueueAPI.updateCar(invoiceId, carData);
+  });
+
+  const {
+    execute: executeDeleteCar,
+    isLoading: isDeletingCar,
+    error: deleteCarError,
+  } = useApi((invoiceId: unknown) =>
+    washQueueAPI.deleteCar(invoiceId as string)
+  );
+
+  const {
+    execute: executeMomentary,
+    isLoading: isSendingMomentary,
+    error: momentaryError,
+  } = useApi((data: unknown) =>
+    momentaryAPI.sendMomentary(data as MomentaryRequest)
   );
 
   const {
@@ -56,23 +99,53 @@ export const useApiOperations = (
     execute: executeGetReports,
     isLoading: isLoadingReports,
     error: reportsError,
-  } = useApi(() => {
-    const now = new Date();
-    return washQueueAPI.getTransactionReport({
-      page: 1,
-      pageSize: 10,
-      period: "hourly",
-      start_datetime: startOfDay(now).toISOString(),
-      end_datetime: endOfDay(now).toISOString(),
-      timefilter_start: "0000",
-      timefilter_end: "2359",
-    });
+  } = useApi((params: unknown) => {
+    const reportParams = params as TransactionReportParams;
+    return washQueueAPI.getTransactionReport(reportParams, companyId, tunnelId);
   });
 
   const handleAddCar = async (carData: WashQueueCarRequest) => {
     try {
-      const result = await executeAddCar(carData);
+      const cleanedData = cleanCarData(carData);
+      console.log("Sending car data:", cleanedData);
+      const result = await executeAddCar(cleanedData);
       setResponse((prev) => ({ ...prev, addCar: result as string | object }));
+      // Removed automatic queue refresh - user can manually refresh if needed
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const handleGetQueueCars = async () => {
+    try {
+      const result = await executeGetQueueCars();
+      setResponse((prev) => ({
+        ...prev,
+        queueCars: result as QueueCarsResponse,
+      }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const handleUpdateCar = async (
+    invoiceId: string,
+    carData: Partial<WashQueueCarRequest>
+  ) => {
+    try {
+      const cleanedData = cleanPartialCarData(carData);
+      console.log("Updating car data:", cleanedData);
+      await executeUpdateCar({ invoiceId, carData: cleanedData });
+      // Removed automatic queue refresh - user can manually refresh if needed
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const handleDeleteCar = async (invoiceId: string) => {
+    try {
+      await executeDeleteCar(invoiceId);
+      // Removed automatic queue refresh - user can manually refresh if needed
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -102,10 +175,38 @@ export const useApiOperations = (
     }
   };
 
-  const handleGetReports = async () => {
+  const handleGetReports = async (params?: TransactionReportParams) => {
     try {
-      const result = await executeGetReports();
-      setResponse((prev) => ({ ...prev, reports: result as string | object }));
+      const defaultParams: TransactionReportParams = {
+        page: 1,
+        pageSize: 10,
+        period: "hourly",
+        start_datetime: startOfDay(new Date()).toISOString(),
+        end_datetime: endOfDay(new Date()).toISOString(),
+        timefilter_start: "0000",
+        timefilter_end: "2359",
+      };
+
+      const finalParams = { ...defaultParams, ...params };
+      const result = await executeGetReports(finalParams);
+      // Extract only the data from the response
+      const responseData = (result as { data?: unknown })?.data || result;
+      setResponse((prev) => ({
+        ...prev,
+        reports: responseData as string | object,
+      }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
+  const handleSendMomentary = async (data: MomentaryRequest) => {
+    try {
+      const result = await executeMomentary(data);
+      setResponse((prev) => ({
+        ...prev,
+        momentary: result as string | object,
+      }));
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -119,6 +220,22 @@ export const useApiOperations = (
     handleAddCar,
     isAddingCar,
     addCarError,
+    // Queue Cars
+    handleGetQueueCars,
+    isLoadingQueueCars,
+    queueCarsError,
+    // Update Car
+    handleUpdateCar,
+    isUpdatingCar,
+    updateCarError,
+    // Delete Car
+    handleDeleteCar,
+    isDeletingCar,
+    deleteCarError,
+    // Momentary
+    handleSendMomentary,
+    isSendingMomentary,
+    momentaryError,
     // Statistics
     handleGetStatistics,
     isLoadingStats,

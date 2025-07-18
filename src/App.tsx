@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { ErrorDisplay } from "./components/ErrorDisplay/ErrorDisplay";
-import { CarForm } from "./components/CarForm/CarForm";
+import { WashQueue } from "./components/WashQueue";
+import { Momentary } from "./components/Momentary";
 import { CredentialsForm } from "./components/CredentialsForm/CredentialsForm";
 import {
   StatisticsSection,
@@ -10,25 +10,11 @@ import {
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { useCredentials } from "./hooks/useCredentials";
 import { useApiOperations } from "./hooks/useApiOperations";
-import type { WashQueueCarRequest } from "./types";
 
 function App() {
-  const [carData, setCarData] = useState<WashQueueCarRequest>({
-    invoice_id: "",
-    wash_pkg_num: 1,
-    position_in_queue: 0,
-    wash_opt_numbers: [],
-    license_plate: "",
-    make: "",
-    model: "",
-    color: "",
-    vehicle_type: "",
-    region: "",
-    image_urls: [],
-  });
-
   const {
     credentials,
+    authData,
     updateCredential,
     applyCredentials,
     clearCredentials,
@@ -39,14 +25,10 @@ function App() {
   } = useCredentials();
 
   const apiOperations = useApiOperations(
-    credentials.companyId,
-    credentials.tunnelId,
-    credentials.deviceId
+    authData.companyId,
+    authData.tunnelId,
+    authData.deviceId
   );
-
-  const updateCarData = (updates: Partial<WashQueueCarRequest>) => {
-    setCarData((prev) => ({ ...prev, ...updates }));
-  };
 
   const handleCredentialsSubmit = async () => {
     await applyCredentials();
@@ -56,7 +38,6 @@ function App() {
     <ErrorBoundary>
       <div className="min-h-screen bg-gray-100 p-8">
         <div className="max-w-4xl mx-auto space-y-6">
-          {/* Credentials Form - always visible at the top */}
           <CredentialsForm
             credentials={credentials}
             onUpdateCredential={updateCredential}
@@ -67,7 +48,6 @@ function App() {
             validationError={validationError}
           />
 
-          {/* Main content - disabled when credentials not configured */}
           <div
             className={`space-y-6 transition-opacity duration-300 ${
               isConfigured ? "opacity-100" : "opacity-30 pointer-events-none"
@@ -85,13 +65,26 @@ function App() {
               onClose={() => apiOperations.setError("")}
             />
 
-            <CarForm
-              carData={carData}
-              onUpdateCarData={updateCarData}
+            <WashQueue
               onAddCar={apiOperations.handleAddCar}
               isAddingCar={apiOperations.isAddingCar}
               addCarResponse={apiOperations.response.addCar ?? null}
               addCarError={apiOperations.addCarError}
+              queueCars={apiOperations.response.queueCars}
+              onGetQueueCars={apiOperations.handleGetQueueCars}
+              isLoadingQueueCars={apiOperations.isLoadingQueueCars}
+              queueCarsError={apiOperations.queueCarsError}
+              onUpdateCar={apiOperations.handleUpdateCar}
+              isUpdatingCar={apiOperations.isUpdatingCar}
+              onDeleteCar={apiOperations.handleDeleteCar}
+              isDeletingCar={apiOperations.isDeletingCar}
+            />
+
+            <Momentary
+              onSendMomentary={apiOperations.handleSendMomentary}
+              isSending={apiOperations.isSendingMomentary}
+              response={apiOperations.response.momentary ?? null}
+              error={apiOperations.momentaryError}
             />
 
             <StatisticsSection
@@ -106,7 +99,7 @@ function App() {
               isLoading={apiOperations.isLoadingHeartbeat}
               response={apiOperations.response.heartBeat}
               error={apiOperations.heartbeatError}
-              deviceId={credentials.deviceId}
+              deviceId={authData.deviceId}
             />
 
             <ReportsSection

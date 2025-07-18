@@ -1,3 +1,8 @@
+// Momentary types
+export interface MomentaryRequest {
+  momentary_numbers: number[];
+}
+
 // Wash Queue types
 export interface WashQueueCarRequest {
   invoice_id: string;
@@ -8,9 +13,44 @@ export interface WashQueueCarRequest {
   make: string;
   model: string;
   color: string;
-  vehicle_type: string;
+  car_type: string;
   region: string;
   image_urls: string[];
+}
+
+export interface WashQueueCar {
+  car_type: string;
+  color: string | null;
+  distance: number;
+  image_urls: string[];
+  invoice_id: string;
+  length_inches: number;
+  license_plate: string | null;
+  make: string | null;
+  model: string | null;
+  opt_nums: number[];
+  position_in_queue: number;
+  pulses: number;
+  region: string | null;
+  source: string;
+  state: "IN_QUEUE" | "WASHING" | "COMPLETED" | "CANCELLED";
+  wash_create_time: string;
+  wash_edit_time: string;
+  wash_extras_names: string[];
+  wash_extras_numbers: number[];
+  wash_package_name: string;
+  wash_pkg_num: number;
+  wash_retracts_names: string[];
+  wash_retracts_numbers: number[];
+  wash_start_time: string | null;
+}
+
+export interface QueueCarsResponse {
+  cars: WashQueueCar[];
+  filters: {
+    states: string[];
+  };
+  total_count: number;
 }
 
 export interface WashQueueCarResponse {
@@ -85,3 +125,21 @@ export interface TransactionReportParams {
   pageSize?: number;
   period?: string;
 }
+
+// Authentication and Company types
+export interface AuthenticatedUserResponse {
+  company: string[];
+  [key: string]: unknown;
+}
+
+export interface CompanyResponse {
+  tunnels: string[];
+  [key: string]: unknown;
+}
+
+export interface DeviceResponse {
+  id: string;
+  [key: string]: unknown;
+}
+
+export type DeviceArrayResponse = DeviceResponse[];
