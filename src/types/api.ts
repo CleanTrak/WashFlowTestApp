@@ -16,6 +16,9 @@ export interface WashQueueCarRequest {
   car_type: string;
   region: string;
   image_urls: string[];
+  customer_first_name?: string;
+  customer_last_name?: string;
+  membership_type?: string;
 }
 
 export interface WashQueueCar {
@@ -43,6 +46,9 @@ export interface WashQueueCar {
   wash_retracts_names: string[];
   wash_retracts_numbers: number[];
   wash_start_time: string | null;
+  customer_first_name?: string;
+  customer_last_name?: string;
+  membership_type?: string;
 }
 
 export interface QueueCarsResponse {

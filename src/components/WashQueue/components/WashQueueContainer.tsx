@@ -55,6 +55,9 @@ export const WashQueueContainer: React.FC<WashQueueContainerProps> = ({
     car_type: "",
     region: "",
     image_urls: [],
+    customer_first_name: "",
+    customer_last_name: "",
+    membership_type: "",
   });
 
   // UI state

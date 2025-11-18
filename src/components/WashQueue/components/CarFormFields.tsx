@@ -7,8 +7,8 @@ interface CarFormFieldsProps {
     field: keyof WashQueueCarRequest,
     value: string | number
   ) => void;
-  onWashOptNumbersChange: (numbers: number[]) => void;
-  onImageUrlsChange: (urls: string[]) => void;
+  onWashOptNumbersChange: (numbers: string) => void;
+  onImageUrlsChange: (urls: string) => void;
   showInvoiceId?: boolean;
   disabled?: boolean;
 }
@@ -27,24 +27,12 @@ export const CarFormFields: React.FC<CarFormFieldsProps> = ({
 
   const handleWashOptChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const numbers = value
-      ? value
-          .split(",")
-          .map((n) => parseInt(n.trim()))
-          .filter((n) => !isNaN(n))
-      : [];
-    onWashOptNumbersChange(numbers);
+    onWashOptNumbersChange(value);
   };
 
   const handleImageUrlsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const urls = value
-      ? value
-          .split(",")
-          .map((url) => url.trim())
-          .filter((url) => url)
-      : [];
-    onImageUrlsChange(urls);
+    onImageUrlsChange(value);
   };
 
   return (
@@ -112,7 +100,7 @@ export const CarFormFields: React.FC<CarFormFieldsProps> = ({
           </label>
           <input
             type="text"
-            value={data.wash_opt_numbers?.join(", ") || ""}
+            // value={data.wash_opt_numbers.map(String).join(",") || ""}
             onChange={handleWashOptChange}
             placeholder="5, 8, 12"
             className={inputClass}
@@ -210,6 +198,48 @@ export const CarFormFields: React.FC<CarFormFieldsProps> = ({
             disabled={disabled}
           />
         </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Customer First Name <span className="text-gray-400 text-xs">(optional)</span>
+          </label>
+          <input
+            type="text"
+            value={data.customer_first_name || ""}
+            onChange={(e) => onFieldChange("customer_first_name", e.target.value)}
+            placeholder="John"
+            className={inputClass}
+            disabled={disabled}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Customer Last Name <span className="text-gray-400 text-xs">(optional)</span>
+          </label>
+          <input
+            type="text"
+            value={data.customer_last_name || ""}
+            onChange={(e) => onFieldChange("customer_last_name", e.target.value)}
+            placeholder="Doe"
+            className={inputClass}
+            disabled={disabled}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Membership Type <span className="text-gray-400 text-xs">(optional)</span>
+          </label>
+          <input
+            type="text"
+            value={data.membership_type || ""}
+            onChange={(e) => onFieldChange("membership_type", e.target.value)}
+            placeholder="Gold"
+            className={inputClass}
+            disabled={disabled}
+          />
+        </div>
       </div>
 
       <div>
@@ -221,7 +251,7 @@ export const CarFormFields: React.FC<CarFormFieldsProps> = ({
         </label>
         <input
           type="text"
-          value={data.image_urls?.join(", ") || ""}
+          value={data.image_urls?.join(",") || ""}
           onChange={handleImageUrlsChange}
           placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
           className={inputClass}

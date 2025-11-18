@@ -175,16 +175,47 @@ export const QueueSection: React.FC<QueueSectionProps> = ({
                   )}
                 </div>
 
-                {car.opt_nums.length > 0 && (
-                  <div className="mt-2 text-sm">
-                    <span className="text-gray-700 font-medium">
-                      Wash Options:
-                    </span>
-                    <div className="text-gray-900">
-                      {car.opt_nums.join(", ")}
+                <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  {car.customer_first_name && (
+                    <div className="mt-2 text-sm">
+                      <span className="text-gray-700 font-medium">
+                        Customer First Name:
+                      </span>
+                      <div className="text-gray-900">
+                        {car.customer_first_name}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                  {car.customer_last_name && (
+                    <div className="mt-2 text-sm">
+                      <span className="text-gray-700 font-medium">
+                        Customer Last Name:
+                      </span>
+                      <div className="text-gray-900">
+                        {car.customer_last_name}
+                      </div>
+                    </div>
+                  )}
+                  {car.membership_type && (
+                    <div className="mt-2 text-sm">
+                      <span className="text-gray-700 font-medium">
+                        Membership Type:
+                      </span>
+                      <div className="text-gray-900">{car.membership_type}</div>
+                    </div>
+                  )}
+
+                  {car.opt_nums.length > 0 && (
+                    <div className="mt-2 text-sm">
+                      <span className="text-gray-700 font-medium">
+                        Wash Options:
+                      </span>
+                      <div className="text-gray-900">
+                        {car.opt_nums.join(", ")}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>

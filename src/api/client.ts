@@ -101,7 +101,7 @@ export const washQueueAPI = {
     return MOXA.get("/washQueue/cars", { params }).then((res) => res.data);
   },
   updateCar: (invoiceId: string, carData: Partial<WashQueueCarRequest>) => {
-    return MOXA.put(`/washQueue/car/${invoiceId}`, carData);
+    return MOXA.patch(`/washQueue/car/${invoiceId}`, carData);
   },
   deleteCar: (invoiceId: string) => {
     return MOXA.delete(`/washQueue/car/${invoiceId}`);
