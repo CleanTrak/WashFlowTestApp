@@ -53,6 +53,18 @@ export const cleanCarData = (
     }
   }
 
+  if (carData.customer_first_name?.trim()) {
+    cleaned.customer_first_name = carData.customer_first_name.trim();
+  }
+
+  if (carData.customer_last_name?.trim()) {
+    cleaned.customer_last_name = carData.customer_last_name.trim();
+  }
+
+  if (carData.membership_type?.trim()) {
+    cleaned.membership_type = carData.membership_type.trim();
+  }
+
   return cleaned;
 };
 
@@ -110,6 +122,18 @@ export const cleanPartialCarData = (
     if (validUrls.length > 0) {
       cleaned.image_urls = validUrls;
     }
+  }
+
+  if (carData.customer_first_name !== undefined && carData.customer_first_name.trim()) {
+    cleaned.customer_first_name = carData.customer_first_name.trim();
+  }
+
+  if (carData.customer_last_name !== undefined && carData.customer_last_name.trim()) {
+    cleaned.customer_last_name = carData.customer_last_name.trim();
+  }
+
+  if (carData.membership_type !== undefined && carData.membership_type.trim()) {
+    cleaned.membership_type = carData.membership_type.trim();
   }
 
   return cleaned;

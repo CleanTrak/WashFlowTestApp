@@ -29,12 +29,17 @@ export const AddCarSection: React.FC<AddCarSectionProps> = ({
     onUpdateCarData({ [field]: value });
   };
 
-  const handleWashOptNumbersChange = (numbers: number[]) => {
-    onUpdateCarData({ wash_opt_numbers: numbers });
+  const handleWashOptNumbersChange = (numbers: string) => {
+    onUpdateCarData({
+      wash_opt_numbers: numbers
+        .split(",")
+        .map(Number)
+        .filter((n) => !isNaN(n)),
+    });
   };
 
-  const handleImageUrlsChange = (urls: string[]) => {
-    onUpdateCarData({ image_urls: urls });
+  const handleImageUrlsChange = (urls: string) => {
+    onUpdateCarData({ image_urls: urls.split(",") });
   };
 
   return (
