@@ -3,6 +3,7 @@ import { Button } from "../../ui/Button";
 import { JsonViewer } from "../../ui/Card";
 import { CarFormFields } from "./CarFormFields";
 import { isFormValid } from "../../../utils/validation";
+import { generateRandomCar } from "../../../utils/randomCar";
 import type { WashQueueCarRequest } from "../../../types";
 
 interface AddCarSectionProps {
@@ -42,6 +43,13 @@ export const AddCarSection: React.FC<AddCarSectionProps> = ({
     onUpdateCarData({ image_urls: urls.split(",") });
   };
 
+  // Fill the form with a realistic random car and add it to the queue
+  const handleAddRandomCar = () => {
+    const randomCar = generateRandomCar();
+    onUpdateCarData(randomCar);
+    onAddCar(randomCar);
+  };
+
   return (
     <div className="space-y-4">
       <CarFormFields
@@ -61,6 +69,15 @@ export const AddCarSection: React.FC<AddCarSectionProps> = ({
           disabled={!isFormValid(carData)}
         >
           Add car to queue
+        </Button>
+
+        <Button
+          variant="secondary"
+          onClick={handleAddRandomCar}
+          disabled={isAddingCar}
+          className="ml-2"
+        >
+          Add random car
         </Button>
 
         {addCarResponse &&
